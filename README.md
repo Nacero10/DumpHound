@@ -1,303 +1,260 @@
-# ProcTree Workbench — Memory-Forensics Platform
+# 🐕 DumpHound — ProcTree Workbench
 
-A production-grade refactor of the single-file ProcTree Workbench into a modular
-**FastAPI + React/TypeScript** platform for **Volatility 3** memory analysis.
+> A browser-based forensic analysis platform for memory dumps. Run Volatility 3 plugins, visualize process trees, detect malware indicators, and recover artifacts — all from a clean web UI.
 
-It ingests Volatility CSV exports, builds an interactive process tree, correlates
-bash history / sockets / open files, scores `linux.pagecache.Files` artifacts
-against an ATT&CK-mapped detection ruleset, and generates page-cache extraction
-commands — with the correct `--inode <InodeAddr>` (address, **not** inode number).
-
-> The browser app analyzes CSVs **entirely client-side** — nothing is uploaded.
-> The backend is optional and only needed to run Volatility live and dump cached
-> files straight from an image.
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115.6-009688.svg)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6.svg)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED.svg)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ---
 
-## Architecture
+## 📸 What It Looks Like
 
-```
-proctree-platform/
-├── backend/                 FastAPI service (Python 3.12, Pydantic v2)
-│   ├── app.py               app factory: middleware, routers, lifespan
-│   ├── api/                 thin routers: health, images, plugins, jobs, dumps
-│   ├── services/            volatility, job, artifact, dump, detection
-│   ├── repositories/        in-memory job + artifact stores
-│   ├── models/              request/response/job/artifact schemas
-│   ├── core/                config, security, validators, DI container, logging
-│   ├── rules/               linux.json · windows.json · mitre.json
-│   └── tests/               48 pytest tests (security, detection, API)
-├── frontend/                React 18 + TypeScript + Vite
-│   ├── src/
-│   │   ├── api/             typed fetch client
-│   │   ├── components/      ProcessTree(D3) · Inspector · Dashboard · FileCache · Modules
-│   │   ├── services/        parser · detection · export
-│   │   ├── stores/          Zustand app store
-│   │   ├── hooks/           React Query hooks
-│   │   └── pages/           WorkbenchPage
-│   └── public/rules/        rules served to the SPA for offline detection
-├── deploy/nginx.conf        static serving + /api proxy (SSE unbuffered)
-├── docker-compose.yml
-└── docs/                    Mermaid class / sequence / component diagrams
-```
-
-See `docs/class-diagram.md`, `docs/sequence-diagram.md`, and
-`docs/component-diagram.md` for the UML.
+| Dashboard | Process Tree | File Recovery |
+|---|---|---|
+| Run Volatility plugins with one click | Interactive parent/child process graph | Dump inodes and recover deleted files |
+| Auto-detect suspicious patterns | Drill into process details | Download artifacts via secure tokens |
 
 ---
 
-## Detection engine (data-driven)
+## 🚀 Features
 
-All detection logic lives in JSON, loaded by **both** the Python backend and the
-TypeScript client — never hardcoded in UI components.
-
-| File | Contents |
-|---|---|
-| `rules/linux.json` | pagecache, lineage, command, network, spoofing, malfind, modules rules |
-| `rules/windows.json` | Windows lineage / command / malfind rules (Office spawns, encoded PS, wmiexec, etc.) |
-| `rules/mitre.json` | technique id → {name, tactic} for ATT&CK enrichment |
-
-Detector classes: `ProcessLineageDetector`, `CommandDetector`, `NetworkDetector`,
-`MalfindDetector`, `SpoofingDetector`, `ModuleDetector`, `SyscallDetector`,
-`PagecacheDetector`, and `MitreMapper`. Severity levels are `alert` / `warn` / `info`.
-
-### Rootkit & hidden-module coverage
-
-Kernel-level tampering is surfaced from Volatility's `linux.malware.*` plugins:
-
-| Indicator | Source plugin | Rule | Severity | ATT&CK |
-|---|---|---|---|---|
-| Hidden module (unlinked from module list) | `linux.malware.hidden_modules` | `hidden_module` | alert | T1014 |
-| Out-of-tree module | `linux.lsmod` / `check_modules` | `oot_module` | alert | T1014 |
-| Unsigned module | `linux.lsmod` | `unsigned_module` | warn | T1014 |
-| Suspicious kernel taint (O/E/F/R) | `linux.lsmod` | `suspicious_taint` | warn | T1014 |
-| Syscall-table hooking (handler doesn't resolve) | `linux.malware.check_syscall` | `hooked_syscall` | alert | T1014 |
-| `.ko` outside `/lib/modules` (page cache) | `linux.pagecache.Files` | `ko_outside_modules` | alert | T1547.006 |
-| RWX/injected regions | `linux.malware.malfind` | `rwx_region` | warn | T1620 |
-
-The **Modules & Rootkits** view decodes kernel taint letters (e.g. `O` = out-of-tree,
-`E` = unsigned, `F` = force-loaded), floats hidden/tainted modules to the top, and
-provides a syscall-integrity table that flags every handler Volatility couldn't
-resolve to a known symbol — the classic signature of syscall-table hooking.
-CSV plugin type is inferred from headers: an lsmod export (with a `Taints` column)
-is treated as visible modules, while a `hidden_modules` export (name/address/size,
-no taint column) marks every row as hidden.
-
-To add a rule, edit the JSON — no code change. Example (page-cache):
-
-```json
-{ "id": "ld_preload", "level": "alert", "technique": "T1574.006",
-  "detail": "ld.so.preload present in page cache (library injection)",
-  "match": { "path_eq": "/etc/ld.so.preload" } }
-```
-
-Matcher DSL keys: `path_eq`, `path_contains`, `path_not_contains`,
-`path_contains_any`, `path_ext`, `path_regex`, `parent_comm_in`, `child_comm_in`,
-`cmd_regex`/`cmd_flags`, `proto_in`, `state_in`, `local_port_gte`,
-`local_port_not_in`, `field_truthy`, `field_eq`, `field_regex`, `comm_in`.
-
-### Two-page workflow
-
-The UI is split into two routed pages sharing one in-memory evidence store:
-
-- **Process Graph** — the D3 process tree with the live Inspector and a severity
-  strip. Click any node to inspect its history, sockets, files, and findings.
-- **Files & Modules** — artifact analysis, tabbed into *Findings* (the full
-  ATT&CK-mapped dashboard), *File Cache* (page-cache scoring + dump commands), and
-  *Modules & Rootkits* (kernel modules, hidden modules, syscall integrity).
-
-Switching pages preserves all parsed data and findings.
+- **🔌 One-Click Volatility Runs** — Select a memory image and plugin; the backend runs Volatility 3 and returns structured CSV data.
+- **🌳 Interactive Process Tree** — Visualize parent/child relationships, command lines, network connections, and loaded modules.
+- **🛡️ Detection Engine** — Data-driven rule engine maps findings to MITRE ATT&CK techniques. Runs **entirely in the browser** for offline analysis.
+- **📁 Artifact Recovery** — Dump specific inodes or bulk-recover filesystems from Linux page cache. Downloads are tokenized and SHA256-verified.
+- **⚡ Offline Mode** — Drag-and-drop Volatility CSV exports straight into the browser. No backend required.
+- **🐳 Docker-First** — Single `docker compose up --build` gets you running. No Python/Node installation needed.
+- **🔒 Security-Hardened** — Plugin allowlists, path containment, argv-list subprocess execution, rate limiting, and structured audit logging.
 
 ---
 
-## Quick start — Docker (full stack)
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Browser (React SPA)                      │
+│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────┐ │
+│  │ Process Tree│  │ Detection    │  │ Offline CSV Drop    │ │
+│  │ Dashboard   │  │ Engine (WASM)│  │ & Analysis          │ │
+│  └──────┬──────┘  └──────────────┘  └─────────────────────┘ │
+└─────────┼────────────────────────────────────────────────────┘
+          │ HTTP / SSE
+┌─────────▼────────────────────────────────────────────────────┐
+│              FastAPI Backend (Python 3.12)                   │
+│  ┌─────────────┐  ┌──────────────┐  ┌─────────────────────┐ │
+│  │ API Router  │  │ Volatility   │  │ Artifact Service    │ │
+│  │ (dumps,     │──│ Service      │──│ (tokenized          │ │
+│  │  jobs,      │  │ (subprocess) │  │  downloads)         │ │
+│  │  plugins)   │  └──────────────┘  └─────────────────────┘ │
+│  └─────────────┘         │                                    │
+│  ┌─────────────┐  ┌──────┴──────┐  ┌─────────────────────┐   │
+│  │ Detection   │  │ Job Service │  │ Audit Logger        │   │
+│  │ Service     │  │ (ThreadPool)│  │ (append-only JSON)  │   │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘   │
+└──────────────────────────────────────────────────────────────┘
+          │
+    ┌─────┴──────────────────────────────────────────┐
+    │  Volatility 3 CLI  ·  Memory Images  ·  Symbols │
+    └──────────────────────────────────────────────────┘
+```
+
+---
+
+## ⚡ Quick Start
+
+### Option A: Docker (Recommended)
 
 ```bash
-# 1. drop a memory image where the backend can see it
-mkdir -p data/images data/dumps data/symbols
-cp /path/to/memdump.mem data/images/
+# 1. Prepare your data folders
+mkdir -p data/images data/symbols data/dumps
+cp your-dump.mem data/images/
 
-# 2. build + run
+# 2. Build and run
 docker compose up --build
 
-# 3. open the workbench
-#    http://127.0.0.1:8080      (SPA, /api proxied to the backend)
-#    http://127.0.0.1:8080/api/health
+# 3. Open http://127.0.0.1:8799
 ```
 
-nginx serves the SPA and proxies `/api` to the backend with rate limiting and
-SSE buffering disabled. The backend port is not published — only nginx reaches it.
+### Option B: Native (Windows PowerShell)
+
+```powershell
+# 1. Backend dependencies
+cd backend
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+pip install volatility3
+
+# 2. Start the backend
+$env:VOL_FRONTEND_DIST = "$PWD\..\frontend\dist"
+$env:VOL_IMAGE_DIR     = "$PWD\..\images"
+$env:VOL_SYMBOL_DIR    = "$PWD\..\symbols"
+python run.py
+
+# 3. In another terminal, start the frontend dev server
+cd ..\frontend
+npm install
+npm run dev
+
+# 4. Open http://localhost:5173
+```
+
+> 📖 See [`SETUP-WINDOWS.md`](SETUP-WINDOWS.md) and [`DOCKER.md`](DOCKER.md) for detailed walkthroughs.
 
 ---
 
-## Local development
+## 🎯 Usage
 
-### Backend
+### Run a Plugin
+
+1. Place your `.mem`, `.raw`, `.lime`, or `.dmp` file in the images folder.
+2. Open the dashboard and select your image from the dropdown.
+3. Pick a plugin (e.g., `linux.pslist.PsList`, `windows.netscan.NetScan`).
+4. Click **Run**. Results appear as a table.
+
+### Detect Threats
+
+The detection engine automatically scans parsed data for:
+
+| Category | Example Findings |
+|---|---|
+| **Process Lineage** | Web server spawning shell, suspicious parent/child pairs |
+| **Commands** | Reverse shells, encoded PowerShell, history clearing |
+| **Memory** | RWX regions, malfind anomalies, process spoofing |
+| **Network** | Listening on high ports, unusual protocols |
+| **Modules** | Out-of-tree modules, hidden modules, suspicious taints |
+| **Syscalls** | Hooked system call tables |
+| **Page Cache** | `ld.so.preload`, dropped `.ko` files, SSH keys in temp |
+
+Findings are mapped to [MITRE ATT&CK](https://attack.mitre.org/) techniques with direct links.
+
+### Recover Files
+
+- **Inode dump:** Right-click a file in the page cache → dump its inode to recover the raw content.
+- **Bulk recovery:** Click **Recover Filesystem** to run `linux.pagecache.RecoverFs` and get all recoverable files as downloadable artifacts.
+
+### Offline Analysis
+
+No backend? No problem. Drag one or more Volatility CSV exports into the browser window. The frontend parses, merges, and analyzes them using the same rule engine.
+
+---
+
+## 🛡️ Security
+
+DumpHound is designed to handle sensitive forensic evidence safely:
+
+- **Plugin Allowlist** — Only 80+ pre-approved Volatility plugins can run. Freeform names are rejected.
+- **Path Containment** — All filesystem access is validated with `Path.resolve()` + `relative_to()` checks. `..` and path separators are blocked.
+- **No Shell Injection** — Volatility is executed via `subprocess.run(argv=list, shell=False)`. User input never touches a shell string.
+- **Tokenized Downloads** — Recovered artifacts are accessed via cryptographically random tokens (`secrets.token_urlsafe`), not file paths.
+- **Rate Limiting** — Mutating endpoints are throttled per client IP.
+- **Audit Logging** — Every plugin run, dump, and download is logged to an append-only JSON audit trail.
+
+> ⚠️ **Note:** The app currently has **no authentication layer**. It is intended for single-analyst use on `127.0.0.1`. Do not expose the API to untrusted networks without adding authentication first.
+
+---
+
+## 📁 Project Structure
+
+```
+Dump_It/
+├── backend/                  # FastAPI Python backend
+│   ├── api/                  # HTTP route handlers
+│   ├── core/                 # Config, security, middleware, DI
+│   ├── services/             # Volatility runner, detection engine, jobs
+│   ├── models/               # Pydantic request/response models
+│   ├── repositories/         # In-memory stores (jobs, artifacts)
+│   ├── rules/                # Detection rule JSON files
+│   └── tests/                # pytest suite
+├── frontend/                 # React + Vite SPA
+│   ├── src/
+│   │   ├── components/       # UI components (tree, inspector, dashboard)
+│   │   ├── pages/            # Top-level routes
+│   │   ├── services/         # Client-side parser + detection engine
+│   │   ├── stores/           # Zustand global state
+│   │   └── api/              # Typed fetch client
+│   └── dist/                 # Prebuilt static files (Docker uses these)
+├── deploy/                   # nginx configuration
+├── docs/                     # Architecture diagrams, analyst guide
+├── data/                     # Runtime data (images, dumps, symbols) — gitignored
+├── docker-compose.yml        # One-command Docker setup
+├── Dockerfile                # Single-container build (prebuilt UI)
+└── backend/Dockerfile        # Multi-stage backend-only build
+```
+
+---
+
+## 🧪 Testing
 
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements-dev.txt        # includes pytest + httpx
-# Volatility is optional locally; the API degrades gracefully without it:
-# pip install volatility3==2.28.0
-
-cp .env.example .env                        # adjust paths if desired
-mkdir -p images dumps
-python run.py
-# → http://127.0.0.1:8799        API docs: http://127.0.0.1:8799/docs
+pytest
 ```
 
-Run the tests:
-
-```bash
-cd backend && source .venv/bin/activate
-python -m pytest -q          # 48 passed
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-# → http://127.0.0.1:5173     (/api proxied to 127.0.0.1:8799 via vite)
-```
-
-Production build:
-
-```bash
-npm run build                 # tsc -b && vite build  → dist/
-npm run preview               # serve dist locally
-```
+The test suite covers:
+- **Security guards** — path traversal rejection, plugin allowlist, inode injection, option validation
+- **API endpoints** — health, images, plugins, dumps, detection, activity
+- **Detection engine** — every detector category with planted indicators
 
 ---
 
-## Using the workbench
+## ⚙️ Configuration
 
-### Option A — run Volatility from the app (backend required)
+All settings use the `VOL_` prefix and can be set via environment variables or a `.env` file:
 
-Click **▸ Run Volatility**, pick an image from `VOL_IMAGE_DIR`, select plugins
-(a recommended set is preselected), and run. Each plugin executes on the backend
-and its CSV streams straight into the analysis store — because the app knows
-which plugin it invoked, results are routed without any header guessing.
-
-### Option B — drag in CSVs (fully offline)
-
-1. Export Volatility 3 plugins as CSV (see `docs/volatility-commands.md` for the
-   complete command set and the CSV→panel mapping):
-
-   ```bash
-   vol -f memdump.mem -r csv -q linux.pstree.PsTree                        > pstree.csv
-   vol -f memdump.mem -r csv -q linux.bash.Bash                            > bash.csv
-   vol -f memdump.mem -r csv -q linux.sockstat.Sockstat                    > sockstat.csv
-   vol -f memdump.mem -r csv -q linux.lsof.Lsof                            > lsof.csv
-   vol -f memdump.mem -r csv -q linux.pagecache.Files                      > pagecache.csv
-   vol -f memdump.mem -r csv -q linux.lsmod.Lsmod                          > lsmod.csv
-   vol -f memdump.mem -r csv -q linux.malware.hidden_modules.Hidden_modules > hidden.csv
-   vol -f memdump.mem -r csv -q linux.malware.check_syscall.Check_syscall   > syscall.csv
-   ```
-
-2. Drag the CSVs onto the workbench. Plugin type is inferred from headers —
-   filenames don't matter.
-
-### The process graph
-
-The **Process Graph** page renders an interactive graph with two layouts:
-**Tree** (tidy hierarchical lineage) and **Force** (organic force-directed).
-Drag any node to reposition it — it stays pinned where you drop it;
-double-click a node to release it back into the physics simulation. Scroll to
-zoom, drag the background to pan, **Fit** re-frames everything. Nodes are colored
-by finding severity; click one to drive the Inspector.
-
-
-
-   ```bash
-   vol -f memdump.mem linux.pagecache.InodePages --inode 0x88c1a2b40000 --dump
-   ```
-
-   > **Critical:** `--inode` takes the **InodeAddr** (e.g. `0x88c1a2b40000`),
-   > not the inode number. Using the number is the most common reason dumps come
-   > back empty. When `CachedPages < InodePages`, the dump is zero-padded over the
-   > missing pages — the workbench flags these rows.
-
-   Bulk recovery:
-
-   ```bash
-   vol -o ./out -f memdump.mem linux.pagecache.RecoverFs
-   tar tzvf out/*.tar.gz | less
-   ```
-
----
-
-## Security model
-
-- **Plugin allowlist** — only named Volatility plugins can execute.
-- **Path validation** — `resolve_image()` rejects `/`, `\`, `..`; the image must
-  resolve inside `VOL_IMAGE_DIR`.
-- **Inode validation** — `^(0x[0-9a-fA-F]+|\d+)$`; injection like `0x1; rm -rf /`
-  is rejected with HTTP 400.
-- **Safe subprocess** — every argument is a discrete argv element; no shell
-  strings are ever constructed. `--offline` is always appended.
-- **Job & artifact isolation** — each dump runs in a token-scoped output dir;
-  downloads are addressed by opaque tokens, not paths.
-- **Rate limiting** — sliding-window per client (configurable, also at nginx).
-- **Audit logging** — append-only record of run/dump operations.
-- **Structured logging** — JSON logs with request ids.
-
----
-
-## Configuration (env, prefix `VOL_`)
-
-| Variable | Default | Notes |
+| Variable | Default | Description |
 |---|---|---|
-| `VOL_BIN` | `vol` | Volatility 3 CLI path |
-| `VOL_IMAGE_DIR` | `./images` | images must live here |
-| `VOL_OUTPUT_DIR` | `./dumps` | recovered artifacts |
-| `VOL_SYMBOL_DIR` | (unset) | passed as `-s` to vol |
-| `VOL_RULES_DIR` | `./rules` | detection rule JSON |
-| `VOL_TIMEOUT` | `900` | per-call seconds |
-| `VOL_WORKERS` | `2` | concurrent jobs |
-| `VOL_HOST` | `127.0.0.1` | bind address |
-| `VOL_PORT` | `8799` | listen port |
-| `VOL_OFFLINE` | `true` | append `--offline` |
-| `VOL_RATE_LIMIT_PER_MINUTE` | `60` | per-client request cap |
-| `VOL_LOG_LEVEL` | `INFO` | log level |
+| `VOL_IMAGE_DIR` | `./images` | Memory image storage |
+| `VOL_OUTPUT_DIR` | `./dumps` | Recovered artifact output |
+| `VOL_SYMBOL_DIR` | *(none)* | ISF symbol packs (`kernel.json`) |
+| `VOL_RULES_DIR` | `./rules` | Detection rule JSON files |
+| `VOL_HOST` | `127.0.0.1` | API bind address |
+| `VOL_PORT` | `8799` | API port |
+| `VOL_OFFLINE` | `true` | Pass `--offline` to Volatility |
+| `VOL_TIMEOUT` | `900` | Per-call timeout (seconds) |
+| `VOL_WORKERS` | `2` | Background job thread pool size |
+| `VOL_RATE_LIMIT_PER_MINUTE` | `60` | Rate limit for mutating endpoints |
+| `VOL_LOG_LEVEL` | `INFO` | Python logging level |
 
 ---
 
-## API surface
+## 🐳 Docker Details
 
-| Method | Path | Purpose |
+| Image | Purpose | Base |
 |---|---|---|
-| GET | `/api/health` | service + Volatility availability |
-| GET | `/api/images` | list images in `VOL_IMAGE_DIR` |
-| GET | `/api/plugins` | allowlisted plugins |
-| POST | `/api/plugins/run` | run a table plugin → CSV |
-| POST | `/api/plugins/detect` | run detection over parsed records |
-| POST | `/api/jobs/inode` | async page-cache dump by InodeAddr |
-| POST | `/api/jobs/recoverfs` | async full filesystem recovery |
-| GET | `/api/jobs/{id}` | job status + artifacts |
-| GET | `/api/jobs/{id}/stream` | SSE job progress |
-| GET | `/api/dumps/download/{token}` | secure artifact download |
+| Root `Dockerfile` | Single-container build with prebuilt UI | `python:3.12-slim` |
+| `backend/Dockerfile` | Backend-only, runs as non-root user | `python:3.12-slim` |
+| `frontend/Dockerfile` | nginx serving built SPA | `nginx:1.27-alpine` |
 
-Full OpenAPI at `/docs` (Swagger) and `/openapi.json`.
+The root Dockerfile is the fastest path: it skips Node entirely and copies the prebuilt `frontend/dist/` into the image. The backend Dockerfile is useful if you want to run the API standalone and serve the frontend separately.
 
 ---
 
-## What's verified
+## 🗺️ Roadmap / TODO
 
-- Backend: **52/52 pytest** passing (security guards, detection incl. hidden
-  modules / taint / syscall hooking, API contract).
-- Frontend: **`tsc -b && vite build`** compiles clean (strict mode, no unused).
-- Detection parity (headless client run against planted indicators):
-  process/lineage/command/page-cache (`webserver_spawns_shell`, `reverse_shell`,
-  `remote_download_exec`, `ld_preload`, `webshell`, `etc_passwd`, `oot_module`)
-  **and** rootkit indicators (`suspicious_taint`, `hidden_module`,
-  `hooked_syscall`) all fire correctly.
+- [ ] Add authentication layer (API key or HTTP Basic Auth)
+- [ ] Persist jobs and artifacts to SQLite or Redis
+- [ ] Plugin result caching to avoid re-running identical queries
+- [ ] Windows symbol auto-download toggle in UI
+- [ ] Export findings to STIX/TAXII or MISP
+- [ ] Multi-image comparison view
 
-Docker images are defined but require a Docker daemon to build/run (not available
-in every environment). The compose file, Dockerfiles, and nginx config are
-provided and ready to `docker compose up --build`.
-#   D u m p H o u n d 
- 
- 
+---
+
+
+
+---
+
+## 🙏 Acknowledgments
+
+- [Volatility Foundation](https://www.volatilityfoundation.org/) — the gold standard in memory forensics
+- [MITRE ATT&CK](https://attack.mitre.org/) — the detection engine maps directly to their framework
+-  Holmes CTF 2025 - HTB
+
+---
+
+> **DumpHound** — *Sniffing out evil in memory dumps.* 🐾
