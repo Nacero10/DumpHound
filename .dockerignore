@@ -1,0 +1,22 @@
+**/node_modules
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/*.tsbuildinfo
+frontend/.tsbuild-node
+# NOTE: frontend/dist is intentionally NOT ignored - the image ships it.
+data
+images
+symbols
+dumps
+*.mem
+*.lime
+*.raw
+*.vmem
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+*.log

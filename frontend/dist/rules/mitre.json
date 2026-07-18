@@ -1,0 +1,133 @@
+{
+  "base_url": "https://attack.mitre.org/techniques/",
+  "techniques": {
+    "T1003.008": {
+      "name": "OS Credential Dumping: /etc/passwd and /etc/shadow",
+      "tactic": "Credential Access"
+    },
+    "T1014": {
+      "name": "Rootkit",
+      "tactic": "Defense Evasion"
+    },
+    "T1036.005": {
+      "name": "Masquerading: Match Legitimate Name or Location",
+      "tactic": "Defense Evasion"
+    },
+    "T1037": {
+      "name": "Boot or Logon Initialization Scripts",
+      "tactic": "Persistence"
+    },
+    "T1040": {
+      "name": "Network Sniffing",
+      "tactic": "Credential Access"
+    },
+    "T1047": {
+      "name": "Windows Management Instrumentation",
+      "tactic": "Execution"
+    },
+    "T1053.003": {
+      "name": "Scheduled Task/Job: Cron",
+      "tactic": "Persistence"
+    },
+    "T1055": {
+      "name": "Process Injection",
+      "tactic": "Defense Evasion"
+    },
+    "T1055.012": {
+      "name": "Process Injection: Process Hollowing",
+      "tactic": "Defense Evasion"
+    },
+    "T1059": {
+      "name": "Command and Scripting Interpreter",
+      "tactic": "Execution"
+    },
+    "T1059.001": {
+      "name": "Command and Scripting Interpreter: PowerShell",
+      "tactic": "Execution"
+    },
+    "T1059.004": {
+      "name": "Command and Scripting Interpreter: Unix Shell",
+      "tactic": "Execution"
+    },
+    "T1070.003": {
+      "name": "Indicator Removal: Clear Command History",
+      "tactic": "Defense Evasion"
+    },
+    "T1070.004": {
+      "name": "Indicator Removal: File Deletion",
+      "tactic": "Defense Evasion"
+    },
+    "T1082": {
+      "name": "System Information Discovery",
+      "tactic": "Discovery"
+    },
+    "T1087.001": {
+      "name": "Account Discovery: Local Account",
+      "tactic": "Discovery"
+    },
+    "T1098.004": {
+      "name": "Account Manipulation: SSH Authorized Keys",
+      "tactic": "Persistence"
+    },
+    "T1105": {
+      "name": "Ingress Tool Transfer",
+      "tactic": "Command and Control"
+    },
+    "T1490": {
+      "name": "Inhibit System Recovery",
+      "tactic": "Impact"
+    },
+    "T1505.003": {
+      "name": "Server Software Component: Web Shell",
+      "tactic": "Persistence"
+    },
+    "T1543.002": {
+      "name": "Create or Modify System Process: systemd Service",
+      "tactic": "Persistence"
+    },
+    "T1543.003": {
+      "name": "Create or Modify System Process: Windows Service",
+      "tactic": "Persistence"
+    },
+    "T1546.004": {
+      "name": "Event Triggered Execution: Unix Shell Configuration",
+      "tactic": "Persistence"
+    },
+    "T1547.006": {
+      "name": "Boot or Logon Autostart: Kernel Modules and Extensions",
+      "tactic": "Persistence"
+    },
+    "T1548.003": {
+      "name": "Abuse Elevation Control Mechanism: Sudo and Sudo Caching",
+      "tactic": "Privilege Escalation"
+    },
+    "T1552.001": {
+      "name": "Unsecured Credentials: Credentials In Files",
+      "tactic": "Credential Access"
+    },
+    "T1552.003": {
+      "name": "Unsecured Credentials: Bash History",
+      "tactic": "Credential Access"
+    },
+    "T1552.004": {
+      "name": "Unsecured Credentials: Private Keys",
+      "tactic": "Credential Access"
+    },
+    "T1565.001": {
+      "name": "Data Manipulation: Stored Data Manipulation",
+      "tactic": "Impact"
+    },
+    "T1571": {
+      "name": "Non-Standard Port",
+      "tactic": "Command and Control"
+    },
+    "T1574.006": {
+      "name": "Hijack Execution Flow: Dynamic Linker Hijacking",
+      "tactic": "Persistence"
+    },
+    "T1620": {
+      "name": "Reflective Code Loading",
+      "tactic": "Defense Evasion"
+    }
+  }
+}

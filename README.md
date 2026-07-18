@@ -298,5 +298,6 @@ Full OpenAPI at `/docs` (Swagger) and `/openapi.json`.
 Docker images are defined but require a Docker daemon to build/run (not available
 in every environment). The compose file, Dockerfiles, and nginx config are
 provided and ready to `docker compose up --build`.
-#   D u m p H o u n d  
+#   D u m p H o u n d 
+ 
  

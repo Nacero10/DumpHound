@@ -1,0 +1,41 @@
+# ============================================================================
+#  docker compose = run multi-container (or single-container) apps from one
+#  declarative file instead of long `docker run` commands.
+#
+#  Start:    docker compose up --build        (build image, then run)
+#  Stop:     Ctrl+C, then  docker compose down
+#  Rebuild:  docker compose up --build         (after changing code/Dockerfile)
+#  Logs:     docker compose logs -f
+#
+#  Then open  http://127.0.0.1:8799/
+# ============================================================================
+
+services:
+  proctree:                       # service name (also the container's hostname)
+    build:
+      context: .                  # build context = files Docker can see (repo root)
+      dockerfile: Dockerfile      # the recipe to build
+    image: proctree-workbench:latest
+    container_name: proctree
+
+    # ports: "HOST:CONTAINER" - publish container's 8799 onto your machine's 8799.
+    ports:
+      - "8799:8799"
+
+    # Environment overrides (image already sets sane defaults). Flip VOL_OFFLINE
+    # to "false" for Windows images so vol can fetch PDB symbols online.
+    environment:
+      VOL_OFFLINE: "true"
+      VOL_LOG_LEVEL: "INFO"
+
+    # VOLUMES connect host folders to container paths so data survives container
+    # restarts and large memory images are NOT copied into the image.
+    #   "HOST:CONTAINER[:ro]"   - :ro = read-only (safe for evidence images).
+    # Put your .mem files in ./data/images, ISF symbol packs in ./data/symbols.
+    # Recovered/dumped files appear in ./data/dumps on your host.
+    volumes:
+      - ./data/images:/data/images:ro
+      - ./data/symbols:/data/symbols:ro
+      - ./data/dumps:/data/dumps
+
+    restart: unless-stopped       # auto-restart unless you explicitly stop it

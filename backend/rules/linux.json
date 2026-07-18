@@ -1,0 +1,447 @@
+{
+  "os": "linux",
+  "pagecache": [
+    {
+      "id": "ld_preload",
+      "level": "alert",
+      "technique": "T1574.006",
+      "detail": "ld.so.preload present in page cache (library injection)",
+      "match": {
+        "path_eq": "/etc/ld.so.preload"
+      }
+    },
+    {
+      "id": "deleted_resident",
+      "level": "alert",
+      "technique": "T1070.004",
+      "detail": "Deleted file still resident in cache (indicator removal)",
+      "match": {
+        "path_contains": "(deleted)"
+      }
+    },
+    {
+      "id": "ko_outside_modules",
+      "level": "alert",
+      "technique": "T1547.006",
+      "detail": "Kernel object outside /lib/modules (rootkit / LKM)",
+      "match": {
+        "path_ext": [
+          ".ko"
+        ],
+        "path_not_contains": "/lib/modules/"
+      }
+    },
+    {
+      "id": "webshell",
+      "level": "alert",
+      "technique": "T1505.003",
+      "detail": "Server-side script in web root (possible web shell)",
+      "match": {
+        "path_ext": [
+          ".php",
+          ".jsp",
+          ".asp",
+          ".aspx",
+          ".phtml"
+        ],
+        "path_contains_any": [
+          "/var/www",
+          "/srv/www",
+          "/usr/share/nginx",
+          "/htdocs",
+          "/webapps"
+        ]
+      }
+    },
+    {
+      "id": "ssh_private_key",
+      "level": "alert",
+      "technique": "T1552.004",
+      "detail": "SSH private key resident in cache",
+      "match": {
+        "path_regex": "/(id_rsa|id_ed25519|id_ecdsa|id_dsa|identity)$"
+      }
+    },
+    {
+      "id": "credential_store",
+      "level": "alert",
+      "technique": "T1552.001",
+      "detail": "Cloud / orchestration credential store",
+      "match": {
+        "path_contains_any": [
+          "/.aws/credentials",
+          "/.kube/config",
+          "/.docker/config.json",
+          "/.azure/",
+          "/.gcloud/"
+        ]
+      }
+    },
+    {
+      "id": "temp_exec_path",
+      "level": "warn",
+      "technique": "T1059",
+      "detail": "Artifact in world-writable temp path",
+      "match": {
+        "path_contains_any": [
+          "/tmp/",
+          "/dev/shm/",
+          "/var/tmp/"
+        ]
+      }
+    },
+    {
+      "id": "etc_shadow",
+      "level": "warn",
+      "technique": "T1003.008",
+      "detail": "/etc/shadow resident in cache (hash access)",
+      "match": {
+        "path_eq": "/etc/shadow"
+      }
+    },
+    {
+      "id": "authorized_keys",
+      "level": "warn",
+      "technique": "T1098.004",
+      "detail": "authorized_keys touched (SSH persistence)",
+      "match": {
+        "path_contains": "authorized_keys"
+      }
+    },
+    {
+      "id": "cron_artifact",
+      "level": "warn",
+      "technique": "T1053.003",
+      "detail": "Cron artifact (scheduled persistence)",
+      "match": {
+        "path_contains_any": [
+          "/etc/cron",
+          "/var/spool/cron",
+          "/etc/crontab"
+        ]
+      }
+    },
+    {
+      "id": "systemd_unit",
+      "level": "warn",
+      "technique": "T1543.002",
+      "detail": "systemd unit file (service persistence)",
+      "match": {
+        "path_ext": [
+          ".service",
+          ".timer"
+        ],
+        "path_contains_any": [
+          "/etc/systemd/",
+          "/lib/systemd/",
+          "/.config/systemd/"
+        ]
+      }
+    },
+    {
+      "id": "shell_init",
+      "level": "warn",
+      "technique": "T1546.004",
+      "detail": "Shell init file (login persistence)",
+      "match": {
+        "path_regex": "/(\\.bashrc|\\.bash_profile|\\.profile|\\.zshrc|/etc/profile|/etc/bash\\.bashrc)$"
+      }
+    },
+    {
+      "id": "bash_history",
+      "level": "info",
+      "technique": "T1552.003",
+      "detail": "Shell history file",
+      "match": {
+        "path_contains": ".bash_history"
+      }
+    },
+    {
+      "id": "etc_passwd",
+      "level": "info",
+      "technique": "T1087.001",
+      "detail": "/etc/passwd resident in cache (account discovery)",
+      "match": {
+        "path_eq": "/etc/passwd"
+      }
+    },
+    {
+      "id": "dns_config",
+      "level": "info",
+      "technique": "T1565.001",
+      "detail": "DNS / hosts configuration",
+      "match": {
+        "path_regex": "/(resolv\\.conf|hosts|nsswitch\\.conf)$"
+      }
+    }
+  ],
+  "lineage": [
+    {
+      "id": "webserver_spawns_shell",
+      "level": "alert",
+      "technique": "T1059.004",
+      "detail": "Web server spawned an interactive shell (likely exploitation)",
+      "match": {
+        "parent_comm_in": [
+          "apache2",
+          "httpd",
+          "nginx",
+          "php-fpm",
+          "tomcat",
+          "java"
+        ],
+        "child_comm_in": [
+          "sh",
+          "bash",
+          "dash",
+          "zsh",
+          "ksh"
+        ]
+      }
+    },
+    {
+      "id": "shell_spawns_netcat",
+      "level": "alert",
+      "technique": "T1059",
+      "detail": "Shell spawned a network utility (reverse shell pattern)",
+      "match": {
+        "parent_comm_in": [
+          "sh",
+          "bash",
+          "dash",
+          "zsh"
+        ],
+        "child_comm_in": [
+          "nc",
+          "ncat",
+          "netcat",
+          "socat"
+        ]
+      }
+    },
+    {
+      "id": "cron_spawns_shell",
+      "level": "warn",
+      "technique": "T1053.003",
+      "detail": "cron spawned a shell (scheduled execution)",
+      "match": {
+        "parent_comm_in": [
+          "cron",
+          "crond"
+        ],
+        "child_comm_in": [
+          "sh",
+          "bash",
+          "dash",
+          "python",
+          "python3",
+          "perl"
+        ]
+      }
+    }
+  ],
+  "command": [
+    {
+      "id": "reverse_shell",
+      "level": "alert",
+      "technique": "T1059",
+      "detail": "Reverse shell one-liner in history",
+      "match": {
+        "cmd_regex": "(bash\\s+-i|/dev/tcp/|nc\\s+-e|socat\\s+.*exec|mkfifo).*",
+        "cmd_flags": "i"
+      }
+    },
+    {
+      "id": "remote_download_exec",
+      "level": "warn",
+      "technique": "T1105",
+      "detail": "Remote payload download piped to interpreter",
+      "match": {
+        "cmd_regex": "(curl|wget)\\s+.*\\|\\s*(sh|bash|python)",
+        "cmd_flags": "i"
+      }
+    },
+    {
+      "id": "credential_dump_cmd",
+      "level": "warn",
+      "technique": "T1003.008",
+      "detail": "Direct read of /etc/shadow",
+      "match": {
+        "cmd_regex": "(cat|cp|less|head|tail)\\s+/etc/shadow",
+        "cmd_flags": "i"
+      }
+    },
+    {
+      "id": "history_clear",
+      "level": "warn",
+      "technique": "T1070.003",
+      "detail": "Shell history cleared",
+      "match": {
+        "cmd_regex": "(history\\s+-c|rm\\s+.*bash_history|>\\s*~?/?\\.bash_history)",
+        "cmd_flags": "i"
+      }
+    },
+    {
+      "id": "enum_tooling",
+      "level": "info",
+      "technique": "T1082",
+      "detail": "System enumeration utility",
+      "match": {
+        "cmd_regex": "(uname\\s+-a|lscpu|id\\b|whoami|cat\\s+/etc/os-release)",
+        "cmd_flags": "i"
+      }
+    }
+  ],
+  "network": [
+    {
+      "id": "listening_high_port",
+      "level": "warn",
+      "technique": "T1571",
+      "detail": "Process listening on a non-standard high port",
+      "match": {
+        "state_in": [
+          "LISTEN",
+          "LISTENING"
+        ],
+        "local_port_gte": 1024,
+        "local_port_not_in": [
+          3306,
+          5432,
+          6379,
+          8080,
+          8443,
+          27017
+        ]
+      }
+    },
+    {
+      "id": "raw_socket",
+      "level": "info",
+      "technique": "T1040",
+      "detail": "Raw socket (possible sniffer)",
+      "match": {
+        "proto_in": [
+          "RAW",
+          "PACKET"
+        ]
+      }
+    }
+  ],
+  "spoofing": [
+    {
+      "id": "comm_spoofed",
+      "level": "alert",
+      "technique": "T1036.005",
+      "detail": "Process comm name differs from executable (masquerading)",
+      "match": {
+        "field_truthy": "comm_spoofed"
+      }
+    },
+    {
+      "id": "exe_deleted",
+      "level": "warn",
+      "technique": "T1070.004",
+      "detail": "Backing executable deleted from disk",
+      "match": {
+        "field_truthy": "exe_deleted"
+      }
+    }
+  ],
+  "malfind": [
+    {
+      "id": "rwx_region_jit",
+      "level": "info",
+      "technique": "T1055",
+      "detail": "RWX memory in a known JIT runtime (likely benign)",
+      "match": {
+        "field_truthy": "rwx",
+        "comm_in": [
+          "java",
+          "node",
+          "python",
+          "python3",
+          "mono",
+          "dotnet"
+        ]
+      }
+    },
+    {
+      "id": "rwx_region",
+      "level": "warn",
+      "technique": "T1620",
+      "detail": "RWX memory region (possible reflective injection)",
+      "match": {
+        "field_truthy": "rwx"
+      }
+    }
+  ],
+  "modules": [
+    {
+      "id": "oot_module",
+      "level": "alert",
+      "technique": "T1014",
+      "detail": "Out-of-tree / hidden kernel module",
+      "match": {
+        "field_eq": {
+          "status": "OOT_MODULE"
+        }
+      }
+    },
+    {
+      "id": "unsigned_module",
+      "level": "warn",
+      "technique": "T1014",
+      "detail": "Unsigned kernel module",
+      "match": {
+        "field_eq": {
+          "status": "UNSIGNED_MODULE"
+        }
+      }
+    },
+    {
+      "id": "hidden_module",
+      "level": "alert",
+      "technique": "T1014",
+      "detail": "Module present in memory but unlinked from the kernel module list (hidden rootkit module)",
+      "match": {
+        "field_truthy": "hidden"
+      }
+    },
+    {
+      "id": "suspicious_taint",
+      "level": "warn",
+      "technique": "T1014",
+      "detail": "Kernel tainted by out-of-tree / unsigned / force-loaded module (O/E/F)",
+      "match": {
+        "field_regex": {
+          "field": "taints",
+          "pattern": "[OEF]"
+        }
+      }
+    }
+  ],
+  "syscalls": [
+    {
+      "id": "hooked_syscall",
+      "level": "alert",
+      "technique": "T1014",
+      "detail": "Syscall handler does not resolve to a known kernel symbol (syscall table hooking)",
+      "match": {
+        "field_regex": {
+          "field": "symbol",
+          "pattern": "^\\s*(unknown|n/?a|-)?\\s*$",
+          "flags": "i"
+        }
+      }
+    },
+    {
+      "id": "changed_syscall",
+      "level": "alert",
+      "technique": "T1014",
+      "detail": "Syscall entry explicitly flagged changed/hooked by Volatility",
+      "match": {
+        "field_truthy": "changed"
+      }
+    }
+  ]
+}
