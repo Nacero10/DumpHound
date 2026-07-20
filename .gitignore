@@ -1,0 +1,48 @@
+# Private/local project material
+README.md
+.agents/
+.codex/
+
+# Python environments, caches, and logs
+**/.venv/
+**/venv/
+**/__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+
+# JavaScript dependencies and generated bundles
+**/node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Forensic evidence and generated artifacts (never publish these)
+data/images/
+data/symbols/
+data/dumps/
+images/
+symbols/
+*.mem
+*.raw
+*.lime
+*.dmp
+*.vmem
+*.dd
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
