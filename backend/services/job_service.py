@@ -15,7 +15,11 @@ from core.config import Settings
 from models.jobs import Job
 from repositories.job_repository import JobRepository
 
+<<<<<<< HEAD
 log = logging.getLogger("dumphound.jobs")
+=======
+log = logging.getLogger("proctree.jobs")
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 
 class JobService:

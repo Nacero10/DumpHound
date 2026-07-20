@@ -109,7 +109,11 @@ def test_download_unknown_token_404(client):
 def test_openapi_served(client):
     r = client.get("/openapi.json")
     assert r.status_code == 200
+<<<<<<< HEAD
     assert r.json()["info"]["title"] == "DumpHound API"
+=======
+    assert r.json()["info"]["title"] == "ProcTree Workbench API"
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 
 def test_activity_log_records_and_lists():

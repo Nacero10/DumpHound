@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // Typed fetch wrapper for the DumpHound backend API.
+=======
+// Typed fetch wrapper for the ProcTree backend API.
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 // Kept dependency-free; React Query hooks wrap these calls.
 
 export interface HealthResponse {

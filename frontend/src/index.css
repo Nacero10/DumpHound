@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* DumpHound — forensic console theme.
+=======
+/* ProcTree Workbench — forensic console theme.
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
    Air-gapped: only system font stacks, no external fetches.
    Signature: severity-coded evidence rows + amber/vermilion alert palette
    against deep slate, with a phosphor-green "live" accent. */
@@ -150,7 +154,11 @@ code {
 }
 .wb-title {
   display: flex;
+<<<<<<< HEAD
   align-items: center;
+=======
+  align-items: baseline;
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
   gap: 10px;
 }
 .wb-title .logo {
@@ -158,6 +166,7 @@ code {
   font-size: 18px;
   align-self: center;
 }
+<<<<<<< HEAD
 .app-logo {
   height: 100px;
   width: auto;
@@ -169,6 +178,8 @@ code {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
 }
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 .wb-title h1 {
   font-size: 16px;
   margin: 0;
@@ -196,6 +207,28 @@ code {
   color: var(--text-faint);
 }
 
+<<<<<<< HEAD
+=======
+.status {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--border-2);
+}
+.status-on {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 1px rgba(67, 224, 160, 0.12) inset;
+}
+.status-warn {
+  color: var(--warn);
+  border-color: #6a5320;
+}
+.status-off {
+  color: var(--text-faint);
+}
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 /* ---- intro / dropzone ---- */
 .wb-intro {
@@ -203,9 +236,15 @@ code {
   display: flex;
   flex-direction: column;
   align-items: center;
+<<<<<<< HEAD
   justify-content: flex-start;
   gap: 18px;
   padding: 32px 40px 40px;
+=======
+  justify-content: center;
+  gap: 18px;
+  padding: 40px;
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 }
 .wb-hint {
   max-width: 640px;
@@ -745,6 +784,7 @@ th {
   position: relative;
 }
 .fc-popup {
+<<<<<<< HEAD
   position: fixed;
   z-index: 100;
   min-width: 260px;
@@ -753,10 +793,19 @@ th {
   max-height: 80vh;
   width: 300px;
   height: 360px;
+=======
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 30;
+  margin-top: 4px;
+  width: 260px;
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
   background: var(--panel-2);
   border: 1px solid var(--border-2);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+<<<<<<< HEAD
   display: flex;
   flex-direction: column;
   resize: both;
@@ -783,12 +832,17 @@ th {
   font-size: 14px;
 }
 .fc-popup-body {
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
   padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+<<<<<<< HEAD
   flex: 1;
   min-height: 0;
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 }
 .fc-popup-search,
 .fc-popup-expr {
@@ -808,11 +862,18 @@ th {
   border-color: var(--accent-dim);
 }
 .fc-popup-list {
+<<<<<<< HEAD
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   min-height: 0;
+=======
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 }
 .fc-popup-item {
   display: flex;
@@ -835,7 +896,11 @@ th {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+<<<<<<< HEAD
   color: #000000;
+=======
+  color: var(--text);
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 }
 .fc-popup-num {
   color: var(--text-faint);
@@ -846,8 +911,11 @@ th {
   gap: 6px;
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 .dumpbtn {
   background: var(--bg-3);
   color: var(--accent);
@@ -1667,6 +1735,7 @@ th {
   margin: 0;
   font-size: 15px;
 }
+<<<<<<< HEAD
 .activity-log {
   display: flex;
   flex: 1;
@@ -1704,6 +1773,8 @@ th {
 .activity-log-inline .act-list {
   max-height: 222px;
 }
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 .drawer-head-actions {
   display: flex;
   align-items: center;
@@ -1716,7 +1787,10 @@ th {
   line-height: 1.6;
 }
 .act-list {
+<<<<<<< HEAD
   flex: 1;
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
   overflow-y: auto;
   padding: 8px;
 }
@@ -1747,10 +1821,13 @@ th {
 .act-main:hover {
   background: var(--bg-2);
 }
+<<<<<<< HEAD
 .act-main:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 .act-badge {
   font-family: var(--mono);
   font-size: 9.5px;
@@ -1827,6 +1904,7 @@ th {
   color: var(--alert);
 }
 
+<<<<<<< HEAD
 @media (max-width: 620px) {
   .wb-intro {
     padding: 20px 16px 32px;
@@ -1852,6 +1930,8 @@ th {
   }
 }
 
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 /* ===== File Cache table polish + resizable modal (v1.1) ===== */
 .fc-table-wrap {
   background: var(--panel);
@@ -1958,6 +2038,7 @@ th {
   background: var(--accent-dim);
   color: var(--bg);
 }
+<<<<<<< HEAD
 
 
 /* ===== DataTable component (v3.1 — csv-filter inspired) ===== */
@@ -2363,3 +2444,5 @@ th {
   .dt-pager { flex-wrap: wrap; justify-content: flex-start; }
   .dt-pager label { margin-right: 8px; }
 }
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e

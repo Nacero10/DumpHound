@@ -11,12 +11,21 @@
 # ============================================================================
 
 services:
+<<<<<<< HEAD
   dumphound:                       # service name (also the container's hostname)
     build:
       context: .                  # build context = files Docker can see (repo root)
       dockerfile: Dockerfile      # the recipe to build
     image: dumphound:latest
     container_name: dumphound
+=======
+  proctree:                       # service name (also the container's hostname)
+    build:
+      context: .                  # build context = files Docker can see (repo root)
+      dockerfile: Dockerfile      # the recipe to build
+    image: proctree-workbench:latest
+    container_name: proctree
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
     # ports: "HOST:CONTAINER" - publish container's 8799 onto your machine's 8799.
     ports:

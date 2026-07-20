@@ -15,7 +15,11 @@ import time
 from collections import deque
 from dataclasses import asdict, dataclass, field
 
+<<<<<<< HEAD
 log = logging.getLogger("dumphound.activity")
+=======
+log = logging.getLogger("proctree.activity")
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 _STDERR_CAP = 4000  # keep events small; full text is still in the console log
 

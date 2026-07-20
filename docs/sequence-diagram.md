@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # DumpHound — Sequence Diagrams
+=======
+# ProcTree Platform — Sequence Diagrams
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 ## 1. Offline CSV analysis (primary path)
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # DumpHound — Component Diagram
+=======
+# ProcTree Platform — Component Diagram
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 Full architecture: React SPA, FastAPI service tiers, and the data-driven
 detection rule store shared by both ends.

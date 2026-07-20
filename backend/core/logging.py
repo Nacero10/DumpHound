@@ -45,7 +45,11 @@ class AuditLogger:
 
     def __init__(self, path: Path) -> None:
         self.path = path
+<<<<<<< HEAD
         self._log = logging.getLogger("dumphound.audit")
+=======
+        self._log = logging.getLogger("proctree.audit")
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
     def record(self, action: str, **fields: Any) -> None:
         entry = {

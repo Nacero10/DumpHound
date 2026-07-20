@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Volatility 3 Command Reference — DumpHound
+=======
+# Volatility 3 Command Reference — ProcTree Workbench
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 A working DFIR command set for Linux (primary) and Windows memory images, plus
 exactly which CSV outputs feed each panel of the workbench.

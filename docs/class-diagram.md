@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # DumpHound — Class Diagram
+=======
+# ProcTree Platform — Class Diagram
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 Core backend services, repositories, and the detection engine. The frontend
 `TreeRenderer` (D3) is included to show the full analytical pipeline.

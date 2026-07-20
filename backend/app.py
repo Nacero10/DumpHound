@@ -17,11 +17,19 @@ from fastapi.staticfiles import StaticFiles
 from api import activity, dumps, health, images, jobs, plugins
 from core.config import get_settings
 from core.container import get_container
+<<<<<<< HEAD
 from core.exceptions import DumpHoundError
 from core.logging import configure_logging
 from core.middleware import RateLimitMiddleware, RequestContextMiddleware
 
 log = logging.getLogger("dumphound")
+=======
+from core.exceptions import ProcTreeError
+from core.logging import configure_logging
+from core.middleware import RateLimitMiddleware, RequestContextMiddleware
+
+log = logging.getLogger("proctree")
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 
 def create_app() -> FastAPI:
@@ -32,6 +40,7 @@ def create_app() -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
+<<<<<<< HEAD
         log.info("DumpHound API starting")
         yield
         get_container().jobs.shutdown()
@@ -41,6 +50,17 @@ def create_app() -> FastAPI:
         title="DumpHound API",
         version="2.0.0",
         description="DumpHound — Volatility 3 memory-forensics analysis platform.",
+=======
+        log.info("ProcTree API starting")
+        yield
+        get_container().jobs.shutdown()
+        log.info("ProcTree API stopped")
+
+    app = FastAPI(
+        title="ProcTree Workbench API",
+        version="2.0.0",
+        description="Volatility 3 memory-forensics analysis platform.",
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
         docs_url="/docs",
         openapi_url="/openapi.json",
         lifespan=lifespan,
@@ -57,8 +77,13 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+<<<<<<< HEAD
     @app.exception_handler(DumpHoundError)
     async def _domain_handler(request: Request, exc: DumpHoundError) -> JSONResponse:
+=======
+    @app.exception_handler(ProcTreeError)
+    async def _domain_handler(request: Request, exc: ProcTreeError) -> JSONResponse:
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
         return JSONResponse(
             status_code=exc.status_code,
             content={"error": {"code": exc.code, "message": exc.message}},

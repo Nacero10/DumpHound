@@ -9,7 +9,11 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
+<<<<<<< HEAD
 from .exceptions import DumpHoundError, RateLimitError
+=======
+from .exceptions import ProcTreeError, RateLimitError
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
@@ -20,7 +24,11 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         request.state.request_id = request_id
         try:
             response = await call_next(request)
+<<<<<<< HEAD
         except DumpHoundError as exc:
+=======
+        except ProcTreeError as exc:
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
             return JSONResponse(
                 status_code=exc.status_code,
                 content={

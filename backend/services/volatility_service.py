@@ -24,7 +24,11 @@ from core.validators import (
 )
 from services.activity import ActivityLog
 
+<<<<<<< HEAD
 log = logging.getLogger("dumphound.volatility")
+=======
+log = logging.getLogger("proctree.volatility")
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 
 def _utf8_env() -> dict[str, str]:

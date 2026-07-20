@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name": "dumphound-frontend",
+=======
+  "name": "proctree-workbench-frontend",
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
   "private": true,
   "version": "2.0.0",
   "type": "module",
@@ -24,6 +28,10 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "^5.6.3",
+<<<<<<< HEAD
     "vite": "^8.1.5"
+=======
+    "vite": "^5.4.11"
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
   }
 }

@@ -1,14 +1,50 @@
+<<<<<<< HEAD
 // Shared shell: header (OS/image + nav), the persistent CSV load bar,
+=======
+// Shared shell: header (status + OS/image + nav), the persistent CSV load bar,
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 // and a routed <Outlet/>. Global Zustand state means switching pages keeps the
 // parsed evidence and findings intact.
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAppStore } from "@/stores/app.store";
+<<<<<<< HEAD
 import { FileDropZone, ToastHost } from "@/components/common";
 import { RunPanel } from "@/components/RunPanel";
 import { ActivityDrawer, ActivityLog } from "@/components/ActivityDrawer";
 import type { OsName } from "@/models";
 
+=======
+import { useHealth } from "@/hooks";
+import { FileDropZone, ToastHost } from "@/components/common";
+import { RunPanel } from "@/components/RunPanel";
+import { ActivityDrawer } from "@/components/ActivityDrawer";
+import type { OsName } from "@/models";
+
+function BackendStatus() {
+  const { data, isError } = useHealth();
+  if (isError || !data) {
+    return (
+      <span className="status status-off" title="Backend not reachable — offline mode">
+        offline
+      </span>
+    );
+  }
+  return (
+    <span
+      className={`status ${data.volatility_available ? "status-on" : "status-warn"}`}
+      title={
+        data.volatility_available
+          ? `Volatility ${data.volatility_version ?? "?"}`
+          : "Backend up, Volatility binary not found"
+      }
+    >
+      {data.volatility_available ? `vol ${data.volatility_version ?? "ready"}` : "no vol"}
+    </span>
+  );
+}
+
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 export function Layout() {
   const os = useAppStore((s) => s.os);
   const image = useAppStore((s) => s.image);
@@ -28,8 +64,13 @@ export function Layout() {
     <div className="workbench">
       <header className="wb-header">
         <div className="wb-title">
+<<<<<<< HEAD
           <img src="/logo.png" alt="DumpHound" className="app-logo" />
           <h1>DumpHound</h1>
+=======
+          <span className="logo">▣</span>
+          <h1>ProcTree Workbench</h1>
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
           <span className="subtitle">Volatility 3 memory-forensics platform</span>
         </div>
         <nav className="wb-nav">
@@ -44,6 +85,10 @@ export function Layout() {
           </NavLink>
         </nav>
         <div className="wb-controls">
+<<<<<<< HEAD
+=======
+          <BackendStatus />
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
           <label className="ctl">
             OS
             <select value={os} onChange={(e) => setOs(e.target.value as OsName)}>
@@ -69,7 +114,10 @@ export function Layout() {
 
       {!loaded ? (
         <div className="wb-intro">
+<<<<<<< HEAD
           <ActivityLog inline />
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
           <FileDropZone onFiles={ingestFiles} />
           <div className="intro-or">
             <span>or</span>

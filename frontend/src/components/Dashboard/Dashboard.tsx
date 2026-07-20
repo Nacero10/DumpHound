@@ -2,10 +2,16 @@
 // sources, and a filterable findings table with export.
 import { useMemo, useState } from "react";
 import { useAppStore } from "@/stores/app.store";
+<<<<<<< HEAD
 import { DataTable, type Column } from "@/components/common/DataTable";
 import { LevelBadge, MitreLinks } from "@/components/common";
 import { exportFindings } from "@/services/export.service";
 import type { Finding, FindingLevel } from "@/models";
+=======
+import { LevelBadge, MitreLinks } from "@/components/common";
+import { exportFindings } from "@/services/export.service";
+import type { FindingLevel } from "@/models";
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
 const LEVELS: FindingLevel[] = ["alert", "warn", "info"];
 
@@ -18,6 +24,10 @@ export function Dashboard() {
   const selectPid = useAppStore((s) => s.selectPid);
 
   const [filter, setFilter] = useState<FindingLevel | "all">("all");
+<<<<<<< HEAD
+=======
+  const [search, setSearch] = useState("");
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { alert: 0, warn: 0, info: 0 };
@@ -25,6 +35,7 @@ export function Dashboard() {
     return c;
   }, [findings]);
 
+<<<<<<< HEAD
   const rows = useMemo(() => {
     return filter === "all" ? findings : findings.filter((f) => f.level === filter);
   }, [findings, filter]);
@@ -54,6 +65,28 @@ export function Dashboard() {
 
   const onRowClick = (f: Finding) => {
     const m = f.target.match(/\((\d+)\)/);
+=======
+  const visible = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return findings.filter((f) => {
+      if (filter !== "all" && f.level !== filter) return false;
+      if (
+        q &&
+        !(
+          f.rule.toLowerCase().includes(q) ||
+          f.target.toLowerCase().includes(q) ||
+          (f.technique ?? "").toLowerCase().includes(q) ||
+          f.detail.toLowerCase().includes(q)
+        )
+      )
+        return false;
+      return true;
+    });
+  }, [findings, filter, search]);
+
+  const onRowClick = (target: string) => {
+    const m = target.match(/\((\d+)\)/);
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
     if (m) selectPid(m[1]);
   };
 
@@ -95,6 +128,7 @@ export function Dashboard() {
         </div>
       )}
 
+<<<<<<< HEAD
       <DataTable
         columns={columns}
         rows={rows}
@@ -113,6 +147,69 @@ export function Dashboard() {
           </>
         }
       />
+=======
+      <div className="findings-toolbar">
+        <input
+          className="search"
+          placeholder="Filter findings…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="spacer" />
+        <button
+          className="btn"
+          disabled={!findings.length}
+          onClick={() => exportFindings(findings, "csv")}
+        >
+          Export CSV
+        </button>
+        <button
+          className="btn"
+          disabled={!findings.length}
+          onClick={() => exportFindings(findings, "json")}
+        >
+          Export JSON
+        </button>
+      </div>
+
+      <div className="findings-table-wrap">
+        <table className="findings-table">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Rule</th>
+              <th>ATT&CK</th>
+              <th>Target</th>
+              <th>Detail</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((f, i) => (
+              <tr key={i} onClick={() => onRowClick(f.target)}>
+                <td>
+                  <LevelBadge level={f.level} />
+                </td>
+                <td className="mono">{f.rule}</td>
+                <td>
+                  <MitreLinks technique={f.technique} refs={f.mitre} />
+                </td>
+                <td className="mono wrap">{f.target}</td>
+                <td className="wrap">{f.detail}</td>
+              </tr>
+            ))}
+            {!visible.length && (
+              <tr>
+                <td colSpan={5} className="empty-row">
+                  {findings.length
+                    ? "No findings match the current filter."
+                    : "No findings yet — load CSV exports to begin analysis."}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
     </div>
   );
 }

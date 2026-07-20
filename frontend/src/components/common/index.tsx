@@ -181,5 +181,8 @@ export async function copyText(text: string): Promise<boolean> {
     return false;
   }
 }
+<<<<<<< HEAD
 
 export { DataTable, type Column, type SortState } from "./DataTable";
+=======
+>>>>>>> 81efc0d5055ee4ef155d33fcb883a5f742a7494e
