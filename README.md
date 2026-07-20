@@ -213,7 +213,7 @@ All settings use the `VOL_` prefix and can be set via environment variables or a
 |---|---|---|
 | `VOL_IMAGE_DIR` | `./images` | Memory image storage |
 | `VOL_OUTPUT_DIR` | `./dumps` | Recovered artifact output |
-| `VOL_SYMBOL_DIR` | *(none)* | ISF symbol packs (`kernel.json`) |
+| `VOL_SYMBOL_DIR` | `./symbols` | ISF symbol packs (`kernel.json`) |
 | `VOL_RULES_DIR` | `./rules` | Detection rule JSON files |
 | `VOL_HOST` | `127.0.0.1` | API bind address |
 | `VOL_PORT` | `8799` | API port |
@@ -237,27 +237,27 @@ The root Dockerfile is the fastest path: it skips Node entirely and copies the p
 
 ---
 
+
+
+## ⚙️ Demo
+
+
+
+
+
+
+
 ## 🗺️ Roadmap / TODO
 
 - [ ] Add authentication layer (API key or HTTP Basic Auth)
 - [ ] Persist jobs and artifacts to SQLite or Redis
 - [ ] Plugin result caching to avoid re-running identical queries
-- [ ] Windows symbol auto-download toggle in UI
+- [ ] Dump files directly from the 
 - [ ] Export findings to STIX/TAXII or MISP
 - [ ] Multi-image comparison view
-
----
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/amazing-thing`)
-3. Make your changes
-4. Run tests (`cd backend && pytest`)
-5. Commit and push
-6. Open a Pull Request
-
-Please keep `data/` out of Git — it is excluded by `.gitignore` for a reason (memory dumps are huge and evidence should not be version-controlled).
+- [ ] Match outputs against Yara Rules
+- [ ] Integrate MemProcFS as a Parallel Plugin Engine (Multi OS Support: Win/Linux/macOS)
+- [ ] Direct Memory acces and Live analysis using MemProcF5 API 
 
 ---
 
@@ -271,7 +271,16 @@ MIT — see [LICENSE](LICENSE) for details.
 
 - [Volatility Foundation](https://www.volatilityfoundation.org/) — the gold standard in memory forensics
 - [MITRE ATT&CK](https://attack.mitre.org/) — the detection engine maps directly to their framework
--  Holmes 2025 4: The Tunnel Without Walls  -- Hack The Box Challenge
+- [MemProcFS](https://github.com/ufrisk/MemProcFS) — MemProcFS is a memory forensics tool that transforms complex RAM analysis into simple file browsing.
+
+-  ## 🙏 Inspiration
+- [CTF](https://ctf.hackthebox.com/event/details/holmes-ctf-2025-2536) — Holmes 2025 4: The Tunnel Without Walls  -- Hack The Box Challenge
+- Holmes 2025 4: The Tunnel Without Walls  -- Hack The Box Challenge
+- [DFIR](https://fareedfauzi.gitbook.io/) — Zero to Hero in Advanced Forensics
+- [Web](https://basarat.gitbook.io/typescript/getting-started) — Friendly Book to learn Typescript
+
+
+
 
 ---
 
