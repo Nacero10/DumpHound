@@ -1,3 +1,6 @@
+<img width="1254" height="1254" alt="logo" src="https://github.com/user-attachments/assets/5908f813-39bf-4257-9c64-f966711ff1a5" />
+
+
 # 🐕 DumpHound — ProcTree Workbench
 
 > A browser-based forensic analysis platform for memory dumps. Run Volatility 3 plugins, visualize process trees, detect malware indicators, and recover artifacts — all from a clean web UI.
