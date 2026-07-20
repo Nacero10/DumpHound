@@ -1,4 +1,4 @@
-<img width="600" height="600" alt="logo" src="https://github.com/user-attachments/assets/5908f813-39bf-4257-9c64-f966711ff1a5" />
+<img width="350" height="350" alt="logo" src="https://github.com/user-attachments/assets/5908f813-39bf-4257-9c64-f966711ff1a5" />
 
 
 # 🐕 DumpHound — ProcTree Workbench
